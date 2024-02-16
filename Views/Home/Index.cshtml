@@ -1,0 +1,155 @@
+﻿@model IEnumerable<TodoList.Models.Todo>
+
+
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand mx-auto text-white" href="#">ToDoList</a>
+    </div>
+</nav>
+
+<div>
+    @{
+        int count = Model.Count(item => !item.IsCompleted);
+    }
+   
+    <p class="text-center text-danger">
+        You have <span class="text-success"> @count </span> task to complete.
+    </p>
+</div>
+
+<div class="text-center">
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-danger btn-sm" })
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 mt-4 small">
+            <div class="card text-white">
+                <div class="card-body">
+                    <h6 class="text-center text-danger">Pending List</h6>
+                    <table class="table small">
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Attributes)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Priority)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.DueDate)
+                            </th>
+                            <th></th>
+                        </tr>
+
+                        @foreach (var item in Model.Where(x => x.IsCompleted == false))
+                        {
+                            <tr data-task-id="@item.ID">
+                                <td>
+                                    
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Attributes)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Priority)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DueDate)
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input border border-primary mt-2" style="margin-right: 3px;" name="selectAllRows" />
+                                    @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-warning btn-sm me-2" })
+                                    @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class = "btn btn-danger btn-sm", onclick = "return confirm('Are you sure you want to delete this item?');" })
+
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="col-md-6 mt-4 small">
+            <div class="card text-white">
+                <div class="card-body">
+                    <h6 class="text-center text-danger">Completed List</h6>
+                    <table class="table small">
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Attributes)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Priority)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.DueDate)
+                            </th>
+                        </tr>
+
+                        @foreach (var item in Model.Where(x => x.IsCompleted))
+                        {
+                            <tr data-task-id="@item.ID">
+                                <td>
+                                    
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Attributes)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Priority)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DueDate)
+                                    <input type="checkbox" class="form-check-input border border-primary" style="margin-left: 5px;" name="selectAllRows" @(item.IsCompleted ? "checked" : "") />
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+        $(document).ready(function () {
+            $('input[name="selectAllRows"]').change(function () {
+                var isChecked = $(this).prop('checked');
+                var taskId = $(this).closest('tr').data('task-id');
+
+                $.ajax({
+                    url: '/Home/UpdateStatus',
+                    type: 'POST',
+                    data: { taskId: taskId, isChecked: isChecked },
+                        success: function () {
+
+                        location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        console.error(status);
+                        console.error(error);
+                    }
+                });
+            });
+        });
+</script>
+
